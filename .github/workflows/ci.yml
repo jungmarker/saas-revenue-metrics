@@ -1,0 +1,22 @@
+name: dbt build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: ledgerly-generate --seed 42 --out data
+      - run: dbt build --profiles-dir .
+      - run: python report/build_report.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: revenue-report
+          path: report/index.html

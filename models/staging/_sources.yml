@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: ledgerly
+    description: Raw exports from Ledgerly's CRM, billing and product systems (see github.com/jungmarker/ledgerly-data).
+    meta:
+      external_location: "{{ env_var('LEDGERLY_DATA', 'data') }}/parquet/raw/{name}.parquet"
+    tables:
+      - name: accounts
+      - name: opportunities
+      - name: subscriptions
+      - name: subscription_lines
+      - name: invoices
+      - name: users

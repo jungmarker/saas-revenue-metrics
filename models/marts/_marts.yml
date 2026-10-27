@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: fct_mrr_movements
+    description: >
+      One row per customer per month with MRR, prior-month MRR and the movement type explaining
+      the change (new, reactivation, expansion, contraction, churn, retained, inactive).
+    data_tests:
+      - dbt_utils_unique_combination:
+          arguments: {columns: [account_id, month_end]}
+    columns:
+      - name: movement_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["new", "reactivation", "expansion", "contraction", "churn", "retained", "inactive"]}
+
+  - name: mrr_bridge
+    description: "Monthly MRR waterfall. starting_mrr + new + reactivation + expansion + contraction + churn = ending_mrr."
+    columns:
+      - name: month_end
+        data_tests: [unique, not_null]
+
+  - name: dim_customers
+    description: One row per account that has ever paid, with cohort, lifetime and current ARR.
+    columns:
+      - name: account_id
+        data_tests: [unique, not_null]
+      - name: customer_status
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["active", "churned"]}
+
+  - name: customer_cohorts
+    description: Logo and revenue retention curves by cohort month, segment and months since start.
+
+  - name: metrics_monthly
+    description: Headline SaaS metrics by month for each segment and for the company ('All').
+    data_tests:
+      - dbt_utils_unique_combination:
+          arguments: {columns: [segment, month_end]}
+    columns:
+      - name: arr
+        description: Annual recurring revenue = month-end MRR × 12.
+      - name: arpa_monthly
+        description: Average revenue per account (MRR / paying customers).
+      - name: logo_churn_rate
+        description: Customers lost this month / customers paying at the start of the month.
+      - name: quick_ratio
+        description: (new + reactivation + expansion MRR) / (contraction + churned MRR). Above 4 is excellent.
+      - name: nrr_ttm
+        description: >
+          Net revenue retention, trailing 12 months: MRR today from customers who paid 12 months ago,
+          divided by their MRR 12 months ago. Includes expansion; above 1.0 means existing customers grow.
+      - name: grr_ttm
+        description: "Gross revenue retention: same as NRR, but each customer is capped at their MRR 12 months ago (no expansion credit)."
+
+  - name: fct_bookings
+    description: Closed deals by month, type and segment with win rate, bookings ACV and sales-cycle length.

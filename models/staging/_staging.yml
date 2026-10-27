@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_accounts
+    description: CRM accounts with billing state normalized to 2-letter codes.
+    columns:
+      - name: account_id
+        data_tests: [unique, not_null]
+      - name: segment
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["SMB", "Mid-Market", "Enterprise"]}
+  - name: stg_subscription_lines
+    description: Contract line items; the source of truth for recurring revenue.
+    columns:
+      - name: line_id
+        data_tests: [unique, not_null]
+      - name: mrr
+        data_tests: [not_null]
+      - name: account_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_accounts'), field: account_id}
+      - name: change_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["New", "Expansion", "Renewal"]}
+  - name: stg_subscriptions
+    columns:
+      - name: subscription_id
+        data_tests: [unique, not_null]
+      - name: account_id
+        data_tests: [unique]
+  - name: stg_opportunities
+    columns:
+      - name: opportunity_id
+        data_tests: [unique, not_null]
+      - name: opportunity_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["New Business", "Expansion", "Renewal"]}
+  - name: stg_invoices
+    columns:
+      - name: invoice_id
+        data_tests: [unique, not_null]
+  - name: stg_users
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]

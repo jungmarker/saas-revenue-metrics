@@ -1,0 +1,27 @@
+name: saas_revenue_metrics
+version: "1.0.0"
+config-version: 2
+profile: saas_revenue_metrics
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  as_of_date: "2026-09-30"   # Ledgerly snapshot date
+  first_month: "2023-01-01"
+
+models:
+  saas_revenue_metrics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: table
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts

@@ -1,0 +1,3 @@
+dbt-duckdb>=1.9
+duckdb>=1.1
+ledgerly-data @ git+https://github.com/jungmarker/ledgerly-data.git
